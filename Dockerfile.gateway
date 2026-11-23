@@ -1,0 +1,4 @@
+# upstream: Noveum/orbit
+FROM ghcr.io/noveum/orbit-gateway:2026.09.24@sha256:8312019cf64a0042bdd76db63b712c32a16dbaab32b82222d22d91ccaddd9598
+
+COPY Caddyfile /etc/caddy/Caddyfile

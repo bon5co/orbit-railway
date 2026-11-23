@@ -1,0 +1,20 @@
+# upstream: Noveum/orbit
+FROM ghcr.io/noveum/orbit-runtime:2026.09.24@sha256:9cb8eb623dfcc1a2fe2a402832ce7d412c2277bd49e16f3a21e3a69a56a09be3
+
+ENV ORBIT_ROLE=web \
+    ORBIT_SELF_HOSTED=true \
+    ORBIT_PASSWORD_AUTH=true \
+    DATABASE_PREPARED_STATEMENTS=true \
+    S3_REGION=us-east-1 \
+    S3_BUCKET=orbit-uploads \
+    S3_ACCESS_KEY_ID=orbit \
+    SLACK_ENABLED=false \
+    EMAIL_FROM="Orbit <auth@orbit.invalid>" \
+    NEXT_TELEMETRY_DISABLED=1
+COPY --chmod=755 railway-boot.sh /usr/local/bin/railway-boot.sh
+COPY --chmod=755 dual-forward.mjs /usr/local/bin/dual-forward.mjs
+COPY --chmod=755 bootstrap.mjs /app/orbit-boot/bootstrap.mjs
+USER root
+RUN chown -R node:node /app/orbit-boot
+USER node
+ENTRYPOINT ["/bin/sh", "/usr/local/bin/railway-boot.sh"]

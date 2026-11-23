@@ -1,0 +1,31 @@
+{
+	admin off
+}
+
+# Railway injects PORT (8080) and its healthcheck dials that port, so the gateway listens there, on IPv4 and IPv6.
+:{$PORT:8080} {
+	bind 0.0.0.0 [::]
+
+	# Answers by itself, so the deploy goes healthy while web is still migrating. /api/health (proxied) is the readiness probe.
+	handle /healthz {
+		respond 200
+	}
+
+	# Railway replaces the inbound X-Forwarded-For, but the edge appends a rotating hop, so the client is the FIRST address.
+	map {http.request.header.X-Forwarded-For} {client_addr} {
+		~^([^,\s]+) {re.1}
+		default {http.request.remote.host}
+	}
+
+	@realtime path /api/ws /api/realtime/health
+	handle @realtime {
+		reverse_proxy realtime.railway.internal:3101 {
+			header_up X-Forwarded-For {client_addr}
+		}
+	}
+	handle {
+		reverse_proxy web.railway.internal:3001 {
+			header_up X-Forwarded-For {client_addr}
+		}
+	}
+}

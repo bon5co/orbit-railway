@@ -1,0 +1,8 @@
+# upstream: none Official PostgreSQL library image that Orbit stores its data in, not the Orbit app
+FROM postgres:18-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
+
+# POSTGRES_PASSWORD is the one template variable (a generated secret). The user and database name are baked in so the deploy form
+# carries nothing a deployer has to type. The volume mounts at /var/lib/postgresql (the parent of PGDATA), so lost+found never
+# lands inside the data directory.
+ENV POSTGRES_USER=orbit \
+    POSTGRES_DB=orbit
