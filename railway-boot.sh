@@ -55,7 +55,8 @@ app_env() {
 case "$role" in
 redis)
   : "${REDIS_PASSWORD:?REDIS_PASSWORD is not set}"
-  # The stock entrypoint chowns /data and drops to the redis user itself. A start command would replace it, so call it from here.
+  # Railway mounts the volume root-owned and Redis 8's stock entrypoint only fixes its config file, not the data dir, so chown it here and let the entrypoint drop to the redis user.
+  chown -R redis:redis /data
   exec docker-entrypoint.sh redis-server --requirepass "$REDIS_PASSWORD" --appendonly yes --dir /data
   ;;
 
